@@ -1,0 +1,66 @@
+name: NEET PG Quiz Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      START_FROM:
+        description: "Question to start from"
+        required: true
+        default: "1"
+
+      MAX_QUESTIONS:
+        description: "Number of questions"
+        required: true
+        default: "180"
+
+      SESSION_START_TIME:
+        description: "Session start time IST"
+        required: true
+        default: "10:00"
+
+      QUIZ_FILE:
+        description: "Exact JSON filename in the private quiz repository"
+        required: true
+
+      QUIZ_END_TIME:
+        description: "Quiz end time IST"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  quiz:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout public runner
+        uses: actions/checkout@v4
+
+      - name: Checkout private quiz repository
+        uses: actions/checkout@v4
+        with:
+          repository: dheerajsrikar/-neetpg-quiz-bot
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+          path: private-quiz
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install requests
+        run: python -m pip install requests
+
+      - name: Run NEET PG quiz bot
+        working-directory: private-quiz
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          START_FROM: ${{ inputs.START_FROM }}
+          MAX_QUESTIONS: ${{ inputs.MAX_QUESTIONS }}
+          SESSION_START_TIME: ${{ inputs.SESSION_START_TIME }}
+          QUIZ_END_TIME: ${{ inputs.QUIZ_END_TIME }}
+          QUIZ_FILE: ${{ inputs.QUIZ_FILE }}
+        run: python bot.py
