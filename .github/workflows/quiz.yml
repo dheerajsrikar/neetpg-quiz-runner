@@ -11,17 +11,17 @@ on:
       MAX_QUESTIONS:
         description: "Number of questions"
         required: true
-        default: "10"
+        default: "180"
 
       SESSION_START_TIME:
         description: "Session start time IST"
         required: true
-        default: "00:00"
+        default: "10:45"
 
       QUIZ_FILE:
         description: "Exact JSON filename in the private quiz repository"
         required: true
-        default: "TEST_10_QUESTIONS.json"
+        default: "NEET_PG_180_19_SUBJECTS_SOURCE_COPYPASTE_TODAY_1045.json"
 
       QUIZ_END_TIME:
         description: "Quiz end time IST"
@@ -47,14 +47,17 @@ jobs:
           path: private-quiz
           fetch-depth: 1
 
-      - name: Verify test files
+      - name: Verify final quiz files
         working-directory: private-quiz
         run: |
           echo "Checking private repository files..."
           ls -la
-          test -f Bot_10_Question_Test.py
-          test -f TEST_10_QUESTIONS.json
-          echo "✅ Test files found"
+
+          test -f bot.py
+          test -f NEET_PG_180_19_SUBJECTS_SOURCE_COPYPASTE_TODAY_1045.json
+
+          echo "✅ bot.py found"
+          echo "✅ 180-question JSON found"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -64,7 +67,7 @@ jobs:
       - name: Install requests
         run: python -m pip install requests
 
-      - name: Run NEET PG 10 Question Test
+      - name: Run NEET PG 180 Quiz
         working-directory: private-quiz
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
@@ -73,5 +76,5 @@ jobs:
           SESSION_START_TIME: ${{ inputs.SESSION_START_TIME }}
           QUIZ_END_TIME: ${{ inputs.QUIZ_END_TIME }}
           QUIZ_FILE: ${{ inputs.QUIZ_FILE }}
-          QUESTION_TIME: "15"
-        run: python Bot_10_Question_Test.py
+          QUESTION_TIME: "30"
+        run: python bot.py
